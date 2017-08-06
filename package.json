@@ -1,26 +1,25 @@
 {
-  "name": "imdqna",
-  "version": "1.0.0",
-  "description": "Live Q&A webapplication",
-  "main": "index.js",
+  "name": "OAuthProject",
+  "version": "0.0.0",
+  "description": "",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RobbeReygel/imdqna.git"
-  },
-  "author": "Robbe Reygel",
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/RobbeReygel/imdqna/issues"
-  },
-  "homepage": "https://github.com/RobbeReygel/imdqna#readme",
   "dependencies": {
-    "express": "^4.15.3",
-	  "express-session": "^1.14.1",
-	  "body-parser": "^1.15.2",
-	  "passport": "^0.3.2",
-	  "passport-facebook": "^2.1.1"
+    "bcrypt": "^0.8.7",
+    "body-parser": "latest",
+    "connect-flash": "~0.1.1",
+    "cookie-parser": "latest",
+    "ejs": "latest",
+    "express": "~4.12.3",
+    "express-session": "latest",
+    "mongoose": "latest",
+    "morgan": "~1.5.2",
+    "passport": "~0.2.1",
+    "passport-facebook": "~2.0.0",
+    "passport-local": "~1.0.0"
   }
 }
