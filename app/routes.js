@@ -1,10 +1,6 @@
 var User = require('./models/user');
 var Discussion = require('./models/discussion');
-
 var mongoose = require('mongoose');
-var discussionSchema = new mongoose.Schema({
-    topic: String,
-});
 
 module.exports = function(app, passport){
 	app.get('/', function(req, res){
@@ -53,7 +49,7 @@ module.exports = function(app, passport){
 
 	app.post("/discussion/create", isLoggedIn, function(req,res){
 		//save topic to mongodb
-		var Discussion = mongoose.model("Discussion", discussionSchema);
+		//TODO add valid field check
 		var myData = new Discussion(req.body);
 		myData.save()
         .then(item => {
@@ -62,7 +58,6 @@ module.exports = function(app, passport){
         .catch(err => {
             res.status(400).send("Unable to save to database");
         });
-
 	})
 };
 
