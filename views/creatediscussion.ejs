@@ -1,0 +1,28 @@
+<!-- views/creatediscussion.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title>IMD Q&A</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+	<style>
+		body 		{ padding-top:80px; }
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="jumbotron text-center">
+		<h1>IMD Q&A</h1>
+
+		<p>Start a discussion!</p>
+		<form action="/discussion/create" method="POST">
+		  <label>Topic:</label> </br>
+		  <input type="text" name="topic"><br>
+		  <input type="submit" name="submit" value="Start Discussion" class="btn btn-primary" />
+		</form>
+		
+	</div>
+</div>
+</body>
+</html>
