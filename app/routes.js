@@ -3,8 +3,15 @@ var Discussion = require('./models/discussion');
 var mongoose = require('mongoose');
 
 module.exports = function(app, passport){
+
 	app.get('/', function(req, res){
-		res.render('index.ejs');
+
+		Discussion.find({topic:{ $ne: "" }}, function(err, data){
+			Discussion.count({topic:{ $ne: "" }}, function (err, c) {
+				res.render('index.ejs', { test : data, count : c });
+			});
+        	
+    	});
 	});
 
 	app.get('/login', function(req, res){

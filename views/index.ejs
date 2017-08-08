@@ -20,7 +20,16 @@
 		<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Signup</a>
 		<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
 		<a href="/discussion/create" class="btn btn-primary"><span class="fa fa-envelope"></span> Start Discussion</a>
+		<p><%= test %></p>
+		<p><%= count %></p>
+		<ul>
+			<% for(var i = 0; i < count; i++) {%>
+			<li><%= i %></li>
+			<% } %>
+		</ul>
 	</div>
+
+	
 
 </div>
 </body>
