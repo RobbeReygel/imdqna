@@ -57,7 +57,19 @@ module.exports = function(app, passport){
 	app.post("/discussion/create", isLoggedIn, function(req,res){
 		//save topic to mongodb
 		//TODO add valid field check
-		var myData = new Discussion(req.body);
+		//var myData = new Discussion(req.body);
+		_ = require("underscore");
+		var myData = new Discussion(_.extend({
+		    postedBy: req.user._id
+		    /*comments: [{
+		        text: "Nice post!",
+		        postedBy: joe._id
+		    }, {
+		        text: "Thanks :)",
+		        postedBy: alex._id
+		    }]*/
+		}, req.body));
+
 		myData.save()
         .then(item => {
             res.redirect('/');
