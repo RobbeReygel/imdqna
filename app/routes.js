@@ -5,12 +5,19 @@ var mongoose = require('mongoose');
 module.exports = function(app, passport){
 
 	app.get('/', function(req, res){
-
+/*
 		Discussion.find({topic:{ $ne: "" }}, function(err, data){
 			Discussion.count({topic:{ $ne: "" }}, function (err, c) {
-				res.render('index.ejs', { test : data, count : c });
+				res.render('index.ejs', { data : data, count : c });
 			});
-        	
+    	});
+
+		Discussion.find({ _id: d.postedBy },{ topic: 1}, function(err, data) {
+			res.render('index.ejs', { data : data});
+		});
+*/
+		Discussion.find({topic:{ $ne: "" }}, function(err, data){
+			res.render('index.ejs', { data : data});
     	});
 	});
 
@@ -78,6 +85,22 @@ module.exports = function(app, passport){
             res.status(400).send("Unable to save to database");
         });
 	})
+
+	app.get('/discussion', function(req,res) {
+        Discussion.find(function(err,docs) {
+          //res.send(docs)
+          res.render('discussion.ejs', { docs : docs});
+        });
+      });
+
+	app.get('/discussion/:id', function(req,res) {
+        Discussion.findById(req.params.id,function(err,doc) {
+          //res.send(doc);
+          res.render('discussionid.ejs', { doc : doc});
+        });
+      });
+
+
 };
 
 function isLoggedIn(req, res, next) {
