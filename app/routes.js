@@ -88,18 +88,17 @@ module.exports = function(app, passport){
 
 	app.get('/discussion', function(req,res) {
         Discussion.find(function(err,docs) {
-          //res.send(docs)
           res.render('discussion.ejs', { docs : docs});
         });
       });
 
 	app.get('/discussion/:id', function(req,res) {
         Discussion.findById(req.params.id,function(err,doc) {
-          //res.send(doc);
-          res.render('discussionid.ejs', { doc : doc});
+        	User.findOne({ '_id': doc.postedBy}, 'facebook.name local.username', function(err,person) {
+				res.render('discussionid.ejs', { doc : doc, person : person});
+        	});     
         });
       });
-
 
 };
 

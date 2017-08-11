@@ -22,7 +22,7 @@
 		<a href="/discussion/create" class="btn btn-primary"><span class="fa fa-envelope"></span> Start Discussion</a>
 		<ul>
 		    <% data.forEach(function(d) { %>
-		        <a href=discussion/<%= d._id %>><li><%= d.topic %> - <%= d.postedBy %></li></a>
+		        <a href=discussion/<%= d._id %>><li><%= d.topic %></li></a>
 		    <% }); %>
 		</ul>
 		
