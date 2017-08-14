@@ -67,14 +67,8 @@ module.exports = function(app, passport){
 		//var myData = new Discussion(req.body);
 		_ = require("underscore");
 		var myData = new Discussion(_.extend({
-		    postedBy: req.user._id
-		    /*comments: [{
-		        text: "Nice post!",
-		        postedBy: joe._id
-		    }, {
-		        text: "Thanks :)",
-		        postedBy: alex._id
-		    }]*/
+		    postedBy: req.user._id,
+		    comments: []
 		}, req.body));
 
 		myData.save()
@@ -99,6 +93,58 @@ module.exports = function(app, passport){
         	});     
         });
       });
+
+
+	app.post('/discussion/:id', isLoggedIn, function(req,res) {
+		//save question to mongodb
+		/*
+		Discussion.findOneAndUpdate(req.params.id, function(err, p) {
+			var myData = new Discussion({
+		    	comments: [{
+		        text: "Sample Comment",
+		        postedBy: req.user._id
+		    	}
+			]});
+		});
+*/
+		var commentData = 
+		{
+	        text: req.body.comment,
+	        postedBy: req.user._id
+    	};
+
+		Discussion.update({ "_id": req.params.id },{ "$push": { "comments": commentData } },function (err, doc) {
+    		res.redirect('/discussion/' + req.params.id);
+		});
+/*
+		var query = {'_id': req.params.id};
+		var newData = {
+		    	comments: [{
+		        text: req.body.comment,
+		        postedBy: req.user._id
+		    	}]
+		    };
+		Discussion.findOneAndUpdate(query, newData, function(err, doc){
+		    if (err) return res.send(500, { error: err });
+		    return res.send("succesfully saved");
+		});
+
+*/
+	});
+
+
+	/*
+	var myData = new Discussion(_.extend({
+		    postedBy: req.user._id
+		    comments: [{
+		        text: "Nice post!",
+		        postedBy: joe._id
+		    }, {
+		        text: "Thanks :)",
+		        postedBy: alex._id
+		    }]
+		}, req.body));
+	*/
 
 };
 
