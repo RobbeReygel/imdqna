@@ -89,11 +89,12 @@ module.exports = function(app, passport){
 	app.get('/discussion/:id', function(req,res) {
         Discussion.findById(req.params.id,function(err,doc) {
         	User.findOne({ '_id': doc.postedBy}, 'facebook.name local.username', function(err,person) {
-				res.render('discussionid.ejs', { doc : doc, person : person});
+        		User.find({},function(err,u) {
+					res.render('discussionid.ejs', { doc : doc, person : person, u : u});
+				});
         	});     
         });
       });
-
 
 	app.post('/discussion/:id', isLoggedIn, function(req,res) {
 		//save question to mongodb

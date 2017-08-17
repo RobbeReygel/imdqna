@@ -26,11 +26,18 @@
 		<div class="jumbotron text-center">
 		<ul>
 		    <% doc.comments.forEach(function(d) { %>
-		        <li><%= d.text %> - <%= d.postedBy %></li>
+		    <% u.forEach(function(u) { %>
+		    	<% if(d.postedBy == u.id) { %>
+		        	<li><b><%= d.text %> - <%= u.facebook.name %> <%= u.local.username %></b></li>
+		        <% } %>
 		        <% doc.answers.forEach(function(a) { %>
+
 		        	<% if(a.question == d.id) { %>
-		        		<li><%= a.text %> - <%= a.postedBy %></li>
+		        		<% if(a.postedBy == u.id) { %>
+		        			<li><%= a.text %> - <%= u.facebook.name %> <%= u.local.username %></li>
+		        		<% } %>
 		        	<% } %>
+		        <% }); %>
 		        <% }); %>
 		        <form action="/discussion/<%=doc._id%>/answer" method="POST">
 				  <input type="text" name="answer">
