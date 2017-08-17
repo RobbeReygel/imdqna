@@ -146,6 +146,23 @@ module.exports = function(app, passport){
 		}, req.body));
 	*/
 
+	app.post('/discussion/:id/answer', isLoggedIn, function(req,res) {
+		var answerData = 
+		{
+	        text: req.body.answer,
+	        postedBy: req.user._id,
+	        question: req.body.submit
+    	};
+
+		Discussion.update({ "_id": req.params.id },{ "$push": { "answers": answerData } },function (err, doc) {
+    		//res.redirect('/discussion/' + req.params.id);
+    		//res.send(req.params)
+    		//res.send(req.body.submit);
+    		if (err) return res.send(500, { error: err });
+		    return res.redirect('/discussion/' + req.params.id);
+		});
+	});
+
 };
 
 function isLoggedIn(req, res, next) {

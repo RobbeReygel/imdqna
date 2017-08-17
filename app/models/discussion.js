@@ -12,7 +12,18 @@ var discussionSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }
-    }]
+    }],
+    answers: [{
+        	text: String,
+	        postedBy: {
+	            type: mongoose.Schema.Types.ObjectId,
+	            ref: 'User'
+	        },
+	        question: {
+	        	type: mongoose.Schema.Types.ObjectId,
+	        	ref: 'Discussion'
+	        }
+        }]
 });
 
 var Discussion = mongoose.model("Discussion", discussionSchema);
