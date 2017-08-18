@@ -8,6 +8,13 @@
 	<style>
 		body 		{ padding-top:80px; }
 	</style>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+	  $(function () {
+	    var socket = io();
+	  });
+	</script>
 </head>
 <body>
 <div class="container">
@@ -19,12 +26,12 @@
 	<div class="jumbotron text-center">
 	<p>Ask a question!</p>
 		<form action="/discussion/<%=doc._id%>" method="POST">
-		  <input type="text" name="comment">
+		  <input type="text" name="comment" id="m">
 		  <input type="submit" name="submit" value="Ask Question" class="btn btn-primary" />
 		</form>
 		</div>
 		<div class="jumbotron text-center">
-		<ul>
+		<ul id="messages">
 		    <% doc.comments.forEach(function(d) { %>
 		    <% u.forEach(function(u) { %>
 		    	<% if(d.postedBy == u.id) { %>

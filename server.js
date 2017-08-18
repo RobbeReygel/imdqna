@@ -10,6 +10,22 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
 
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+var connectCounter = 0;
+
+io.on('connection', function(socket){
+		connectCounter++; 
+		console.log(socket.id + ' connected');
+		console.log("Total clients connected: " + connectCounter)
+	
+	socket.on('disconnect', function(){
+		connectCounter--; 
+	    console.log(socket.id + ' disconnected');
+	    console.log("Total clients connected: " + connectCounter)
+	});
+});
 
 var configDB = require('./config/database.js');
 mongoose.connect(configDB.url);
@@ -27,8 +43,6 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 
-
-
 app.set('view engine', 'ejs');
 
 
@@ -41,8 +55,12 @@ app.set('view engine', 'ejs');
 
 require('./app/routes.js')(app, passport);
 
-app.listen(port);
-console.log('Server running on port: ' + port);
+//app.listen(port);
+//console.log('Server running on port: ' + port);
+
+http.listen(port, function(){
+  console.log('Server running on port: ' + port);
+});
 
 
 
