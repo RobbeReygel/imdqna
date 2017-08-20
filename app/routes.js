@@ -1,6 +1,7 @@
 var User = require('./models/user');
 var Discussion = require('./models/discussion');
 var mongoose = require('mongoose');
+var geoip = require('geoip-lite');
 
 module.exports = function(app, passport){
 
@@ -17,8 +18,15 @@ module.exports = function(app, passport){
 		});
 */
 		Discussion.find({topic:{ $ne: "" }}, function(err, data){
-			res.render('index.ejs', { data : data});
+			var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+			if (ip !== "::1") {
+				var geo = geoip.lookup(ip);
+			} else {
+				var geo = geoip.lookup("81.164.109.161");
+			}
+			res.render('index.ejs', { data : data, geo : geo});
     	});
+
 	});
 
 	app.get('/login', function(req, res){
@@ -66,7 +74,15 @@ module.exports = function(app, passport){
 		//TODO add valid field check
 		//var myData = new Discussion(req.body);
 		_ = require("underscore");
+		var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+		//var ip = "81.164.109.161";
+		if (ip !== "::1") {
+			var geo = geoip.lookup(ip);
+		} else {
+			var geo = geoip.lookup("207.97.227.239");
+		}
 		var myData = new Discussion(_.extend({
+			city: geo.city,
 		    postedBy: req.user._id,
 		    comments: []
 		}, req.body));

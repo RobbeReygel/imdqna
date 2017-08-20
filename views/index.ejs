@@ -20,9 +20,12 @@
 		<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Signup</a>
 		<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
 		<a href="/discussion/create" class="btn btn-primary"><span class="fa fa-envelope"></span> Start Discussion</a>
+		<p>location: <%= geo.city %></p>
 		<ul>
 		    <% data.forEach(function(d) { %>
-		        <a href=discussion/<%= d._id %>><li><%= d.topic %></li></a>
+		    	<% if (d.city == geo.city) { %>
+		        	<a href=discussion/<%= d._id %>><li><%= d.topic %></li></a>
+		        <% }; %>
 		    <% }); %>
 		</ul>
 		
