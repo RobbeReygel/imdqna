@@ -22,7 +22,7 @@ module.exports = function(app, passport){
 			if (ip !== "::1") {
 				var geo = geoip.lookup(ip);
 			} else {
-				var geo = geoip.lookup("81.164.109.161");
+				var geo = geoip.lookup("207.97.227.239");
 			}
 			res.render('index.ejs', { data : data, geo : geo});
     	});
@@ -83,6 +83,7 @@ module.exports = function(app, passport){
 		}
 		var myData = new Discussion(_.extend({
 			city: geo.city,
+			status: "open",
 		    postedBy: req.user._id,
 		    comments: []
 		}, req.body));
@@ -103,16 +104,17 @@ module.exports = function(app, passport){
       });
 
 	app.get('/discussion/:id', function(req,res) {
+		if (req.isAuthenticated()) {var userid = req.user._id}else{var userid = "Not_A_User"};
         Discussion.findById(req.params.id,function(err,doc) {
         	User.findOne({ '_id': doc.postedBy}, 'facebook.name local.username', function(err,person) {
         		User.find({},function(err,u) {
-					res.render('discussionid.ejs', { doc : doc, person : person, u : u});
+					res.render('discussionid.ejs', { doc : doc, person : person, u : u, userid : userid});
 				});
         	});     
         });
       });
 
-	app.post('/discussion/:id', isLoggedIn, function(req,res) {
+	app.post('/discussion/:id', isLoggedIn, isOpen, function(req,res) {
 		//save question to mongodb
 		/*
 		Discussion.findOneAndUpdate(req.params.id, function(err, p) {
@@ -163,7 +165,7 @@ module.exports = function(app, passport){
 		}, req.body));
 	*/
 
-	app.post('/discussion/:id/answer', isLoggedIn, function(req,res) {
+	app.post('/discussion/:id/answer', isLoggedIn, isOpen, function(req,res) {
 		var answerData = 
 		{
 	        text: req.body.answer,
@@ -180,6 +182,31 @@ module.exports = function(app, passport){
 		});
 	});
 
+	app.post('/discussion/:id/status', isLoggedIn, function(req,res) {
+		var locked = 
+		{
+	        status: "locked",
+    	};
+    	var open = 
+		{
+	        status: "open",
+    	};
+		Discussion.findById(req.params.id,function(err,doc) {
+			if (doc.status == "open") {
+				Discussion.update({ "_id": req.params.id },{ status: "locked" },function (err, doc) {
+					if (err) return res.send(500, { error: err });
+					return res.redirect('/discussion/' + req.params.id);
+				});
+			}else{
+				Discussion.update({ "_id": req.params.id },{ status: "open" },function (err, doc) {
+					if (err) return res.send(500, { error: err });
+					return res.redirect('/discussion/' + req.params.id);
+				});
+			}
+		});
+	});
+
+
 };
 
 function isLoggedIn(req, res, next) {
@@ -188,4 +215,14 @@ function isLoggedIn(req, res, next) {
 	}
 
 	res.redirect('/login');
+}
+
+function isOpen(req, res, next) {
+	Discussion.findById(req.params.id,function(err,doc) {
+		if (doc.status == "open") {
+			return next();
+		}
+
+		res.redirect('/discussion/' + req.params.id);
+	});
 }

@@ -23,9 +23,11 @@
 		<p>location: <%= geo.city %></p>
 		<ul>
 		    <% data.forEach(function(d) { %>
-		    	<% if (d.city == geo.city) { %>
+		    	<% if (d.city == geo.city && d.status == "open") { %>
 		        	<a href=discussion/<%= d._id %>><li><%= d.topic %></li></a>
-		        <% }; %>
+		        <% }else if (d.city == geo.city && d.status == "locked") {%>
+		        	<a href=discussion/<%= d._id %>><li><%= d.topic %> (locked)</li></a>
+		        <% } %>
 		    <% }); %>
 		</ul>
 		
