@@ -10,11 +10,6 @@
 	</style>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-	<script>
-	  $(function () {
-	    var socket = io();
-	  });
-	</script>
 	
 </head>
 <body>
@@ -24,13 +19,14 @@
 		<h1>IMD Q&A</h1>
 	    <h2><%= doc.topic %> - <%= person.facebook.name %> <%= person.local.username %></h2>
 	</div>
+
 	<div class="jumbotron text-center">
 		<% if(doc.status == "open") {%>
-		<p>Ask a question!</p>
-		<form action="/discussion/<%=doc._id%>" method="POST">
-		  <input type="text" name="comment" id="m">
-		  <input type="submit" name="submit" value="Ask Question" class="btn btn-primary" />
-		</form>
+		<div id="questionfield">
+            <h2>Ask a Question</h2>
+            <input id="message" type="text" placeholder="Question" />
+            <button id="send" class="btn btn-primary">Ask!</button>
+        </div>
 		<% }; %>
 		<% if(doc.postedBy.toString() == userid.toString()){ %>
 			<% if (doc.status == "open") { %>
@@ -40,6 +36,7 @@
 			<% }; %>
 		<% } %>	
 		</div>
+
 		<div class="jumbotron text-center">
 		<ul id="messages">
 		    <% doc.comments.forEach(function(d) { %>
@@ -65,6 +62,10 @@
 		    <% }); %>
 		</ul>
 	</div>
+	
+	
+
+
 </div>
 </body>
 <script>
@@ -86,6 +87,35 @@
 	      	});
 		}
 */
+	});
+</script>
+<script>
+	// Make connection
+	var socket = io.connect('http://localhost:8080');
+
+	// Query DOM
+	var message = document.getElementById('message'),
+      	btn = document.getElementById('send')
+      	
+
+	// Emit events
+	btn.addEventListener('click', function(){
+	  socket.emit('chat', {
+	      message: message.value,
+	      handle:  "<%= user.facebook.name %><%= user.local.username %>",
+	      postedBy: "<%= user.id %>",
+	      did: "<%= doc.id %>"
+	  });
+	  message.value = "";
+	});
+
+	// Listen for events
+	socket.on('chat', function(data){
+	    document.getElementById('messages').innerHTML += '<li><strong>' + data.message + ' - ' + data.handle + '</strong></li>';
+	    document.getElementById('messages').innerHTML += '<form action="/discussion/'+ data.did +'/answer" method="POST">';
+	    document.getElementById('messages').innerHTML += '<input type="text" name="answer">';
+	    document.getElementById('messages').innerHTML += '<input type="submit" name="submit" value="'+ data.did +'" class="btn btn-primary" />';
+	    document.getElementById('messages').innerHTML += '</form>';
 	});
 </script>
 </html>

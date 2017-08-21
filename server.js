@@ -14,6 +14,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var connectCounter = 0;
+var User = require('./app/models/user');
+var Discussion = require('./app/models/discussion');
 
 io.on('connection', function(socket){
 		connectCounter++; 
@@ -25,6 +27,17 @@ io.on('connection', function(socket){
 	    console.log(socket.id + ' disconnected');
 	    console.log("Total clients connected: " + connectCounter)
 	});
+
+	socket.on('chat', function(data){
+        io.sockets.emit('chat', data);
+        var commentData = 
+		{
+	        text: data.message,
+	        postedBy: data.postedBy
+    	};
+
+		Discussion.update({ _id: data.did },{ "$push": { "comments": commentData } },function (err, doc) {});
+    });
 });
 
 var configDB = require('./config/database.js');

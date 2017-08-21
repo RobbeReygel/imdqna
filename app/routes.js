@@ -103,18 +103,18 @@ module.exports = function(app, passport){
         });
       });
 
-	app.get('/discussion/:id', function(req,res) {
+	app.get('/discussion/:id', isLoggedIn, function(req,res) {
 		if (req.isAuthenticated()) {var userid = req.user._id}else{var userid = "Not_A_User"};
         Discussion.findById(req.params.id,function(err,doc) {
         	User.findOne({ '_id': doc.postedBy}, 'facebook.name local.username', function(err,person) {
         		User.find({},function(err,u) {
-					res.render('discussionid.ejs', { doc : doc, person : person, u : u, userid : userid});
+					res.render('discussionid.ejs', { doc : doc, person : person, u : u, userid : userid, user: req.user});
 				});
         	});     
         });
       });
 
-	app.post('/discussion/:id', isLoggedIn, isOpen, function(req,res) {
+//	app.post('/discussion/:id', isLoggedIn, isOpen, function(req,res) {
 		//save question to mongodb
 		/*
 		Discussion.findOneAndUpdate(req.params.id, function(err, p) {
@@ -126,15 +126,15 @@ module.exports = function(app, passport){
 			]});
 		});
 */
-		var commentData = 
-		{
-	        text: req.body.comment,
-	        postedBy: req.user._id
-    	};
-
-		Discussion.update({ "_id": req.params.id },{ "$push": { "comments": commentData } },function (err, doc) {
-    		res.redirect('/discussion/' + req.params.id);
-		});
+//		var commentData = 
+//		{
+//	        text: req.body.comment,
+//	        postedBy: req.user._id
+//    	};
+//
+//		Discussion.update({ "_id": req.params.id },{ "$push": { "comments": commentData } },function (err, doc) {
+//    		res.redirect('/discussion/' + req.params.id);
+//		});
 /*
 		var query = {'_id': req.params.id};
 		var newData = {
@@ -149,7 +149,7 @@ module.exports = function(app, passport){
 		});
 
 */
-	});
+//	});
 
 
 	/*
