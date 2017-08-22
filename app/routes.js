@@ -152,19 +152,7 @@ module.exports = function(app, passport){
 //	});
 
 
-	/*
-	var myData = new Discussion(_.extend({
-		    postedBy: req.user._id
-		    comments: [{
-		        text: "Nice post!",
-		        postedBy: joe._id
-		    }, {
-		        text: "Thanks :)",
-		        postedBy: alex._id
-		    }]
-		}, req.body));
-	*/
-
+/*
 	app.post('/discussion/:id/answer', isLoggedIn, isOpen, function(req,res) {
 		var answerData = 
 		{
@@ -181,7 +169,7 @@ module.exports = function(app, passport){
 		    return res.redirect('/discussion/' + req.params.id);
 		});
 	});
-
+*/
 	app.post('/discussion/:id/status', isLoggedIn, function(req,res) {
 		var locked = 
 		{

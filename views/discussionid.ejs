@@ -25,7 +25,7 @@
 		<div id="questionfield">
             <h2>Ask a Question</h2>
             <input id="message" type="text" placeholder="Question" />
-            <button id="send" class="btn btn-primary">Ask!</button>
+            <button id="ask" class="btn btn-primary">Ask!</button>
         </div>
 		<% }; %>
 		<% if(doc.postedBy.toString() == userid.toString()){ %>
@@ -38,12 +38,14 @@
 		</div>
 
 		<div class="jumbotron text-center">
-		<ul id="messages">
+		<ul id="questions">
 		    <% doc.comments.forEach(function(d) { %>
 		    <% u.forEach(function(u) { %>
 		    	<% if(d.postedBy == u.id) { %>
-		        	<li><b><%= d.text %> - <%= u.facebook.name %> <%= u.local.username %></b></li>
+		        	<li id="li<%= d.id %>"><b><%= d.text %> - <%= u.facebook.name %> <%= u.local.username %></b>
+		        	<ul id="answers<%= d.id %>">
 		        <% } %>
+		        
 		        <% doc.answers.forEach(function(a) { %>
 
 		        	<% if(a.question == d.id) { %>
@@ -52,12 +54,15 @@
 		        		<% } %>
 		        	<% } %>
 		        <% }); %>
+		        
 		        <% }); %>
+		        </ul>
+		        </li>
 		        <% if(doc.status == "open") {%>
-		        <form action="/discussion/<%=doc._id%>/answer" method="POST">
-				  <input type="text" name="answer">
-				  <input type="submit" name="submit" value="<%= d._id %>" class="btn btn-primary" />
-				</form>
+		        <div id="answerfield">
+		            <input id="<%= d._id %>" name="answer" type="text" placeholder="Answer" />
+		            <button id="ask2" class="btn btn-primary" value="<%= d._id %>" onclick="reply_click(this)">Answer!</button>
+		        </div>
 				<% }; %>
 		    <% }); %>
 		</ul>
@@ -95,27 +100,52 @@
 
 	// Query DOM
 	var message = document.getElementById('message'),
-      	btn = document.getElementById('send')
+      	qbtn = document.getElementById('ask'),
+      	message2 = document.getElementById('message2'),
+      	abtn = document.getElementById('ask2')
+
       	
 
 	// Emit events
-	btn.addEventListener('click', function(){
-	  socket.emit('chat', {
-	      message: message.value,
-	      handle:  "<%= user.facebook.name %><%= user.local.username %>",
-	      postedBy: "<%= user.id %>",
-	      did: "<%= doc.id %>"
-	  });
-	  message.value = "";
+	qbtn.addEventListener('click', function(){
+	  	socket.emit('question', {
+	      	message: message.value,
+	      	handle:  "<%= user.facebook.name %><%= user.local.username %>",
+	      	postedBy: "<%= user.id %>",
+	      	did: "<%= doc.id %>"
+	  	});
+	  	message.value = "";
 	});
 
+	function reply_click(btn) {
+		message2 = document.getElementById(btn.value)
+    	//console.log(message2);
+    	socket.emit('answer', {
+		    message: message2.value,
+		    handle:  "<%= user.facebook.name %><%= user.local.username %>",
+		    postedBy: "<%= user.id %>",
+		    did: "<%= doc.id %>",
+		    question: btn.value
+		});
+		message2.value = "";
+	}
+
 	// Listen for events
-	socket.on('chat', function(data){
-	    document.getElementById('messages').innerHTML += '<li><strong>' + data.message + ' - ' + data.handle + '</strong></li>';
-	    document.getElementById('messages').innerHTML += '<form action="/discussion/'+ data.did +'/answer" method="POST">';
-	    document.getElementById('messages').innerHTML += '<input type="text" name="answer">';
-	    document.getElementById('messages').innerHTML += '<input type="submit" name="submit" value="'+ data.did +'" class="btn btn-primary" />';
-	    document.getElementById('messages').innerHTML += '</form>';
+	socket.on('question', function(data){
+	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + data.message + ' - ' + data.handle + '</strong></li>';
+	    document.getElementById('li'+data.qid).innerHTML += '<ul id="answers' + data.qid + '">'
+	    document.getElementById('questions').innerHTML += '<div id="answerfield">';
+	    document.getElementById('questions').innerHTML += '<input id="' + data.qid + '" name="answer" type="text" placeholder="Answer" />';
+	    document.getElementById('questions').innerHTML += '<button id="ask2" class="btn btn-primary" value="' + data.qid + '" onclick="reply_click(this)">Answer!</button>';
+	    document.getElementById('questions').innerHTML += '</div>';
+	    //document.getElementById('questions').innerHTML += '<form action="/discussion/'+ data.did +'/answer" method="POST">';
+	    //document.getElementById('questions').innerHTML += '<input type="text" name="answer">';
+	    //document.getElementById('questions').innerHTML += '<input type="submit" id="question" name="submit" value="'+ data.did +'" class="btn btn-primary" />';
+	    //document.getElementById('questions').innerHTML += '</form>';
+	});
+
+	socket.on('answer', function(data){
+	    document.getElementById('answers' + data.question).innerHTML += '<li>' + data.message + ' - ' + data.handle + '</li>';
 	});
 </script>
 </html>

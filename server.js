@@ -28,15 +28,44 @@ io.on('connection', function(socket){
 	    console.log("Total clients connected: " + connectCounter)
 	});
 
-	socket.on('chat', function(data){
-        io.sockets.emit('chat', data);
+	socket.on('question', function(data){
         var commentData = 
 		{
 	        text: data.message,
 	        postedBy: data.postedBy
     	};
 
-		Discussion.update({ _id: data.did },{ "$push": { "comments": commentData } },function (err, doc) {});
+		Discussion.update({ _id: data.did },{ "$push": { "comments": commentData } },function (err, doc) {
+
+		Discussion.findById(data.did,function(err,doc) {
+			doc.comments.forEach(function(d) {
+				if(d.text ==  data.message && d.postedBy == data.postedBy) {
+					io.sockets.emit('question', {
+				    message: data.message,
+			      	handle:  data.handle,
+			      	postedBy: data.postedBy,
+			      	did: data.did,
+			      	qid: d.id
+				});
+				}
+			});
+		});
+
+		});
+
+		
+    });
+
+    socket.on('answer', function(data){
+        io.sockets.emit('answer', data);
+        var answerData = 
+		{
+	        text: data.message,
+	        postedBy: data.postedBy,
+	        question: data.question
+    	};
+
+		Discussion.update({ _id: data.did },{ "$push": { "answers": answerData } },function (err, doc) {});
     });
 });
 
