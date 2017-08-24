@@ -42,7 +42,19 @@
 		    <% doc.comments.forEach(function(d) { %>
 		    <% u.forEach(function(u) { %>
 		    	<% if(d.postedBy == u.id) { %>
-		        	<li id="li<%= d.id %>"><b><%= d.text %> - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= d._id %>" onclick="removeq_click(this)">remove</button><% }; %></b>
+		        	<li id="li<%= d.id %>">
+		        	<script>
+			        	function urlify(text) {
+						    var urlRegex = /(https?:\/\/[^\s]+)/g;
+						    return text.replace(urlRegex, function(url) {
+						        return '<img src="' + url + '" alt="urltoimage"/>';
+						    })
+						}
+			        	document.getElementById('li<%= d.id %>').innerHTML += '<b>'+ urlify("<%= d.text %>") +' - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= d._id %>" onclick="removeq_click(this)">remove</button><% }; %></b>'
+		        	</script>
+
+		        	
+
 		        	<ul id="answers<%= d.id %>">
 		        <% } %>
 		        
@@ -50,7 +62,18 @@
 
 		        	<% if(a.question == d.id) { %>
 		        		<% if(a.postedBy == u.id) { %>
-		        			<li id="li<%= a.id %>"><%= a.text %> - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= a._id %>" onclick="removea_click(this)">remove</button><% }; %></li>
+		        			<li id="li<%= a.id %>">
+		        			<script>
+					        	function urlify(text) {
+								    var urlRegex = /(https?:\/\/[^\s]+)/g;
+								    return text.replace(urlRegex, function(url) {
+								        return '<img src="' + url + '" alt="urltoimage"/>';
+								    })
+								}
+					        	document.getElementById('li<%= a.id %>').innerHTML += ''+ urlify("<%= a.text %>") +' - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= a._id %>" onclick="removea_click(this)">remove</button><% }; %></li>'
+				        	</script>
+
+		        			
 		        		<% } %>
 		        	<% } %>
 		        <% }); %>
@@ -68,9 +91,6 @@
 		    <% }); %>
 		</ul>
 	</div>
-	
-	
-
 
 </div>
 </body>
@@ -149,7 +169,7 @@
 
 	// Listen for events
 	socket.on('question2', function(data){
-	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + data.message + ' - ' + data.handle + '</strong><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.qid + '" onclick="removeq_click(this)">remove</button><% }; %>';
+	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + urlify(data.message) + ' - ' + data.handle + '</strong><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.qid + '" onclick="removeq_click(this)">remove</button><% }; %>';
 	    document.getElementById('li'+data.qid).innerHTML += '<ul id="answers' + data.qid + '">'
 	    document.getElementById('li'+data.qid).innerHTML += '<div id="answerfield' + data.qid + '">';
 	    document.getElementById('answerfield'+data.qid).innerHTML += '<input id="' + data.qid + '" name="answer" type="text" placeholder="Answer" />';
@@ -158,7 +178,7 @@
 	});
 
 	socket.on('answer2', function(data){
-	    document.getElementById('answers' + data.question).innerHTML += '<li id="li' + data.aid + '">' + data.message + ' - ' + data.handle + '<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.aid + '"onclick="removea_click(this)">remove</button><% }; %></li>';
+	    document.getElementById('answers' + data.question).innerHTML += '<li id="li' + data.aid + '">' + urlify(data.message) + ' - ' + data.handle + '<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.aid + '"onclick="removea_click(this)">remove</button><% }; %></li>';
 	});
 
 	socket.on('removeq', function(data){
@@ -192,5 +212,12 @@
 		document.getElementById("li"+data.btn).remove();
 		console.log(data.btn);
 	});
+
+	function urlify(text) {
+	    var urlRegex = /(https?:\/\/[^\s]+)/g;
+	    return text.replace(urlRegex, function(url) {
+	        return '<img src="' + url + '" alt="urltoimage"/>';
+	    })
+	}
 </script>
 </html>
