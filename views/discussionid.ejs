@@ -47,7 +47,7 @@
 			        	function urlify(text) {
 						    var urlRegex = /(https?:\/\/[^\s]+)/g;
 						    return text.replace(urlRegex, function(url) {
-						        return '<img src="' + url + '" alt="urltoimage"/>';
+						        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
 						    })
 						}
 			        	document.getElementById('li<%= d.id %>').innerHTML += '<b>'+ urlify("<%= d.text %>") +' - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= d._id %>" onclick="removeq_click(this)">remove</button><% }; %></b>'
@@ -67,7 +67,7 @@
 					        	function urlify(text) {
 								    var urlRegex = /(https?:\/\/[^\s]+)/g;
 								    return text.replace(urlRegex, function(url) {
-								        return '<img src="' + url + '" alt="urltoimage"/>';
+								        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
 								    })
 								}
 					        	document.getElementById('li<%= a.id %>').innerHTML += ''+ urlify("<%= a.text %>") +' - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= a._id %>" onclick="removea_click(this)">remove</button><% }; %></li>'
@@ -216,7 +216,7 @@
 	function urlify(text) {
 	    var urlRegex = /(https?:\/\/[^\s]+)/g;
 	    return text.replace(urlRegex, function(url) {
-	        return '<img src="' + url + '" alt="urltoimage"/>';
+	        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
 	    })
 	}
 </script>
