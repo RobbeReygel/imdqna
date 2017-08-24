@@ -42,7 +42,7 @@
 		    <% doc.comments.forEach(function(d) { %>
 		    <% u.forEach(function(u) { %>
 		    	<% if(d.postedBy == u.id) { %>
-		        	<li id="li<%= d.id %>"><b><%= d.text %> - <%= u.facebook.name %> <%= u.local.username %></b>
+		        	<li id="li<%= d.id %>"><b><%= d.text %> - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= d._id %>" onclick="removeq_click(this)">remove</button><% }; %></b>
 		        	<ul id="answers<%= d.id %>">
 		        <% } %>
 		        
@@ -50,20 +50,21 @@
 
 		        	<% if(a.question == d.id) { %>
 		        		<% if(a.postedBy == u.id) { %>
-		        			<li><%= a.text %> - <%= u.facebook.name %> <%= u.local.username %></li>
+		        			<li id="li<%= a.id %>"><%= a.text %> - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= a._id %>" onclick="removea_click(this)">remove</button><% }; %></li>
 		        		<% } %>
 		        	<% } %>
 		        <% }); %>
 		        
 		        <% }); %>
 		        </ul>
-		        </li>
+		        
 		        <% if(doc.status == "open") {%>
-		        <div id="answerfield">
+		        <div id="answerfield<%= d.id %>">
 		            <input id="<%= d._id %>" name="answer" type="text" placeholder="Answer" />
-		            <button id="ask2" class="btn btn-primary" value="<%= d._id %>" onclick="reply_click(this)">Answer!</button>
+		            <button id="ask2" class="btn btn-primary" value="<%= d._id %>" onclick="answer_click(this)">Answer!</button>
 		        </div>
 				<% }; %>
+				</li>
 		    <% }); %>
 		</ul>
 	</div>
@@ -112,12 +113,12 @@
 	      	message: message.value,
 	      	handle:  "<%= user.facebook.name %><%= user.local.username %>",
 	      	postedBy: "<%= user.id %>",
-	      	did: "<%= doc.id %>"
+	      	did: "<%= doc.id %>" 
 	  	});
 	  	message.value = "";
 	});
 
-	function reply_click(btn) {
+	function answer_click(btn) {
 		message2 = document.getElementById(btn.value)
     	//console.log(message2);
     	socket.emit('answer', {
@@ -130,22 +131,66 @@
 		message2.value = "";
 	}
 
+	function removeq_click(btn) {
+		//console.log("remove question " + btn.value);
+		socket.emit('removeq', {
+			did: "<%= doc.id %>",
+		    btn: btn.value
+		});
+	}
+
+	function removea_click(btn) {
+		//console.log("remove question " + btn.value);
+		socket.emit('removea', {
+			did: "<%= doc.id %>",
+		    btn: btn.value
+		});
+	}
+
 	// Listen for events
-	socket.on('question', function(data){
-	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + data.message + ' - ' + data.handle + '</strong></li>';
+	socket.on('question2', function(data){
+	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + data.message + ' - ' + data.handle + '</strong><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.qid + '" onclick="removeq_click(this)">remove</button><% }; %>';
 	    document.getElementById('li'+data.qid).innerHTML += '<ul id="answers' + data.qid + '">'
-	    document.getElementById('questions').innerHTML += '<div id="answerfield">';
-	    document.getElementById('questions').innerHTML += '<input id="' + data.qid + '" name="answer" type="text" placeholder="Answer" />';
-	    document.getElementById('questions').innerHTML += '<button id="ask2" class="btn btn-primary" value="' + data.qid + '" onclick="reply_click(this)">Answer!</button>';
-	    document.getElementById('questions').innerHTML += '</div>';
-	    //document.getElementById('questions').innerHTML += '<form action="/discussion/'+ data.did +'/answer" method="POST">';
-	    //document.getElementById('questions').innerHTML += '<input type="text" name="answer">';
-	    //document.getElementById('questions').innerHTML += '<input type="submit" id="question" name="submit" value="'+ data.did +'" class="btn btn-primary" />';
-	    //document.getElementById('questions').innerHTML += '</form>';
+	    document.getElementById('li'+data.qid).innerHTML += '<div id="answerfield' + data.qid + '">';
+	    document.getElementById('answerfield'+data.qid).innerHTML += '<input id="' + data.qid + '" name="answer" type="text" placeholder="Answer" />';
+	    document.getElementById('answerfield'+data.qid).innerHTML += '<button id="ask2" class="btn btn-primary" value="' + data.qid + '" onclick="answer_click(this)">Answer!</button>';
+	    document.getElementById('questions').innerHTML += '</div></li>';
 	});
 
-	socket.on('answer', function(data){
-	    document.getElementById('answers' + data.question).innerHTML += '<li>' + data.message + ' - ' + data.handle + '</li>';
+	socket.on('answer2', function(data){
+	    document.getElementById('answers' + data.question).innerHTML += '<li id="li' + data.aid + '">' + data.message + ' - ' + data.handle + '<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.aid + '"onclick="removea_click(this)">remove</button><% }; %></li>';
+	});
+
+	socket.on('removeq', function(data){
+		Element.prototype.remove = function() {
+		    this.parentElement.removeChild(this);
+		}
+		NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+		    for(var i = this.length - 1; i >= 0; i--) {
+		        if(this[i] && this[i].parentElement) {
+		            this[i].parentElement.removeChild(this[i]);
+		        }
+		    }
+		}
+		//document.getElementById("li"+data.btn).innerHTML = "";
+		document.getElementById("li"+data.btn).remove();
+		console.log(data.btn);
+	});
+
+	socket.on('removea', function(data){
+		Element.prototype.remove = function() {
+		    this.parentElement.removeChild(this);
+		}
+		NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+		    for(var i = this.length - 1; i >= 0; i--) {
+		        if(this[i] && this[i].parentElement) {
+		            this[i].parentElement.removeChild(this[i]);
+		        }
+		    }
+		}
+		//document.getElementById("li"+data.btn).innerHTML = "";
+		document.getElementById("li"+data.btn).remove();
+		console.log(data.btn);
 	});
 </script>
 </html>

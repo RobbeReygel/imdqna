@@ -38,17 +38,23 @@ io.on('connection', function(socket){
 		Discussion.update({ _id: data.did },{ "$push": { "comments": commentData } },function (err, doc) {
 
 		Discussion.findById(data.did,function(err,doc) {
+			var BreakException = {};
+			try {
 			doc.comments.forEach(function(d) {
 				if(d.text ==  data.message && d.postedBy == data.postedBy) {
-					io.sockets.emit('question', {
+					io.sockets.emit('question2', {
 				    message: data.message,
 			      	handle:  data.handle,
 			      	postedBy: data.postedBy,
 			      	did: data.did,
 			      	qid: d.id
 				});
+				throw BreakException;
 				}
 			});
+			} catch (e) {
+				if (e !== BreakException) throw e;
+			}
 		});
 
 		});
@@ -57,7 +63,6 @@ io.on('connection', function(socket){
     });
 
     socket.on('answer', function(data){
-        io.sockets.emit('answer', data);
         var answerData = 
 		{
 	        text: data.message,
@@ -65,7 +70,51 @@ io.on('connection', function(socket){
 	        question: data.question
     	};
 
-		Discussion.update({ _id: data.did },{ "$push": { "answers": answerData } },function (err, doc) {});
+		Discussion.update({ _id: data.did },{ "$push": { "answers": answerData } },function (err, doc) {
+			Discussion.findById(data.did,function(err,doc) {
+			var BreakException = {};
+			try {
+			doc.answers.forEach(function(d) {
+				if(d.text ==  data.message && d.postedBy == data.postedBy) {
+					io.sockets.emit('answer2', {
+				    message: data.message,
+			      	handle:  data.handle,
+			      	postedBy: data.postedBy,
+			      	did: data.did,
+			      	question: data.question,
+			      	aid: d.id
+				});
+					throw BreakException;
+				}
+			});
+			} catch (e) {
+				if (e !== BreakException) throw e;
+			}
+		});
+
+		});
+    });
+
+    socket.on('removeq', function(data){
+    	//remove comments
+		Discussion.update({ _id: data.did },{ "$pull": { "comments": { "_id": data.btn} } },function (err, doc) {});
+		//remove answers
+		Discussion.update({ _id: data.did },{ "$pull": { "answers": { "question": data.btn} } },function (err, doc) {});
+		
+		io.sockets.emit('removeq', {
+			did: data.did,
+		    btn: data.btn
+		});
+    });
+
+    socket.on('removea', function(data){
+		//remove answer
+		Discussion.update({ _id: data.did },{ "$pull": { "answers": { "_id": data.btn} } },function (err, doc) {});
+		
+		io.sockets.emit('removea', {
+			did: data.did,
+		    btn: data.btn
+		});
     });
 });
 
