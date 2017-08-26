@@ -25,7 +25,8 @@ var discussionSchema = new mongoose.Schema({
 	        	type: mongoose.Schema.Types.ObjectId,
 	        	ref: 'Discussion'
 	        }
-        }]
+        }],
+    participants: [String]
 });
 
 var Discussion = mongoose.model("Discussion", discussionSchema);

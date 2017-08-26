@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
+var fileUpload = require('express-fileupload');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -25,7 +26,37 @@ io.on('connection', function(socket){
 	socket.on('disconnect', function(){
 		connectCounter--; 
 	    console.log(socket.id + ' disconnected');
-	    console.log("Total clients connected: " + connectCounter)
+	    console.log("Total clients connected: " + connectCounter);
+	});
+
+	socket.on('subscribe', function(room) {
+		socket.nickname = room.nick;
+    	socket.join(room.id);
+    	console.log(socket.nickname + ' joined room', room.id);
+    	Discussion.findOneAndUpdate({_id: room.id}, {$push: {participants: room.uid}},function (err, doc) {
+
+    	});
+
+		io.sockets.in(room.id).emit('adduser', {
+    		id: room.id,
+    		nick: room.nick,
+    		uid: room.uid
+		});
+	});
+
+	socket.on('unsubscribe', function(room) {
+		socket.nickname = room.nick;
+    	socket.leave(room.id);
+    	console.log(socket.nickname + ' left room', room.id);
+    	Discussion.findOneAndUpdate({_id: room.id}, {$pull: {participants: room.uid}},function (err, doc) {
+    		
+    	});
+
+    	io.sockets.in(room.id).emit('removeuser', {
+    		id: room.id,
+    		nick: room.nick,
+    		uid: room.uid
+		});
 	});
 
 	socket.on('question', function(data){
@@ -42,7 +73,7 @@ io.on('connection', function(socket){
 			try {
 			doc.comments.forEach(function(d) {
 				if(d.text ==  data.message && d.postedBy == data.postedBy) {
-					io.sockets.emit('question2', {
+					io.sockets.in(data.did).emit('question2', {
 				    message: data.message,
 			      	handle:  data.handle,
 			      	postedBy: data.postedBy,
@@ -76,7 +107,7 @@ io.on('connection', function(socket){
 			try {
 			doc.answers.forEach(function(d) {
 				if(d.text ==  data.message && d.postedBy == data.postedBy) {
-					io.sockets.emit('answer2', {
+					io.sockets.in(data.did).emit('answer2', {
 				    message: data.message,
 			      	handle:  data.handle,
 			      	postedBy: data.postedBy,
@@ -101,7 +132,7 @@ io.on('connection', function(socket){
 		//remove answers
 		Discussion.update({ _id: data.did },{ "$pull": { "answers": { "question": data.btn} } },function (err, doc) {});
 		
-		io.sockets.emit('removeq', {
+		io.sockets.in(data.did).emit('removeq', {
 			did: data.did,
 		    btn: data.btn
 		});
@@ -111,9 +142,29 @@ io.on('connection', function(socket){
 		//remove answer
 		Discussion.update({ _id: data.did },{ "$pull": { "answers": { "_id": data.btn} } },function (err, doc) {});
 		
-		io.sockets.emit('removea', {
+		io.sockets.in(data.did).emit('removea', {
 			did: data.did,
 		    btn: data.btn
+		});
+    });
+
+    socket.on('lock', function(data){
+		var locked = 
+		{
+	        status: "locked",
+    	};
+    	var open = 
+		{
+	        status: "open",
+    	};
+		Discussion.findById(data.did,function(err,doc) {
+			if (doc.status == "open") {
+				Discussion.update({ _id: data.did },{ status: "locked" },function (err, doc) {});
+				io.sockets.in(data.did).emit('lock', data);
+			}else{
+				Discussion.update({ _id: data.did },{ status: "open" },function (err, doc) {});
+				io.sockets.in(data.did).emit('open', data);
+			}
 		});
     });
 });
@@ -132,7 +183,8 @@ app.use(session({secret: 'anystringoftext',
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
-
+app.use(fileUpload());
+app.use(express.static(__dirname + '/images'));
 
 app.set('view engine', 'ejs');
 

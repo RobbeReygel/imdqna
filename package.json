@@ -15,6 +15,7 @@
     "cookie-parser": "latest",
     "ejs": "latest",
     "express": "~4.12.3",
+    "express-fileupload": "^0.1.4",
     "express-session": "latest",
     "geoip-lite": "^1.2.1",
     "http": "0.0.0",

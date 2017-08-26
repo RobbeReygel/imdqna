@@ -16,8 +16,14 @@
 <div class="container">
 
 	<div class="jumbotron text-center">
+		<a href="/">Home</a>
 		<h1>IMD Q&A</h1>
 	    <h2><%= doc.topic %> - <%= person.facebook.name %> <%= person.local.username %></h2>
+	    <ul id="userlist">
+	    <% doc.participants.forEach(function(p) { %>
+	    	<li id="li<%= p %>"><img src="/<%= p %>.jpg" /></li>
+	    <% }); %>
+	    </ul>
 	</div>
 
 	<div class="jumbotron text-center">
@@ -25,14 +31,14 @@
 		<div id="questionfield">
             <h2>Ask a Question</h2>
             <input id="message" type="text" placeholder="Question" />
-            <button id="ask" class="btn btn-primary">Ask!</button>
+            <button id="ask" class="btn btn-primary" onclick="question_click(this)">Ask!</button>
         </div>
 		<% }; %>
 		<% if(doc.postedBy.toString() == userid.toString()){ %>
 			<% if (doc.status == "open") { %>
-				<buton type="button" id="lock" class="btn btn-danger">Lock Discussion</buton>
+				<button type="button" id="lock" class="btn btn-danger" onclick="lock_click(this)">Lock Discussion</button>
 			<% }else{ %>
-				<buton type="button" id="lock" class="btn btn-success">Open Discussion</buton>
+				<button type="button" id="lock" class="btn btn-success" onclick="lock_click(this)">Open Discussion</button>
 			<% }; %>
 		<% } %>	
 		</div>
@@ -82,7 +88,7 @@
 		        </ul>
 		        
 		        <% if(doc.status == "open") {%>
-		        <div id="answerfield<%= d.id %>">
+		        <div id="answerfield<%= d.id %>" class="answerfield">
 		            <input id="<%= d._id %>" name="answer" type="text" placeholder="Answer" />
 		            <button id="ask2" class="btn btn-primary" value="<%= d._id %>" onclick="answer_click(this)">Answer!</button>
 		        </div>
@@ -91,30 +97,8 @@
 		    <% }); %>
 		</ul>
 	</div>
-
 </div>
 </body>
-<script>
-	$("#lock").click(function() {
-	  	$.post('/discussion/<%= doc.id %>/status')
-	  	location.reload();
-/*
-	  	if ($( this ).hasClass( "btn-danger" )) {
-		  $( this ).addClass( "btn-success" );
-		  $( this ).removeClass( "btn-danger" );
-		  $(this).text(function(i, text){
-	          return text === "Lock Discussion" ? "Open Discussion" : "Lock Discussion";
-	      });
-		} else {
-			$( this ).addClass( "btn-danger" );
-		  	$( this ).removeClass( "btn-success" );
-		  	$(this).text(function(i, text){
-	         	 return text === "Lock Discussion" ? "Open Discussion" : "Lock Discussion";
-	      	});
-		}
-*/
-	});
-</script>
 <script>
 	// Make connection
 	var socket = io.connect('http://localhost:8080');
@@ -125,9 +109,25 @@
       	message2 = document.getElementById('message2'),
       	abtn = document.getElementById('ask2')
 
-      	
-
 	// Emit events
+
+
+	socket.emit('subscribe', {
+		id: "<%= doc.id %>",
+		nick: "<%= user.facebook.name %><%= user.local.username %>",
+		uid: "<%= user.id %>"
+	});
+
+	window.onbeforeunload = function(){
+		socket.emit('unsubscribe', {
+			id: "<%= doc.id %>",
+			nick: "<%= user.facebook.name %><%= user.local.username %>",
+			uid: "<%= user.id %>"
+		});
+	};
+
+
+	/*
 	qbtn.addEventListener('click', function(){
 	  	socket.emit('question', {
 	      	message: message.value,
@@ -137,6 +137,37 @@
 	  	});
 	  	message.value = "";
 	});
+*/
+	function question_click(btn) {
+		var message = document.getElementById('message')
+		socket.emit('question', {
+	      	message: message.value,
+	      	handle:  "<%= user.facebook.name %><%= user.local.username %>",
+	      	postedBy: "<%= user.id %>",
+	      	did: "<%= doc.id %>" 
+	  	});
+	  	message.value = "";
+	};
+
+	function lock_click(btn) {
+		if ($( btn ).hasClass( "btn-danger" )) {
+		  $( btn ).addClass( "btn-success" );
+		  $( btn ).removeClass( "btn-danger" );
+		  $(btn).text(function(i, text){
+	          return text === "Lock Discussion" ? "Open Discussion" : "Lock Discussion";
+	      });
+		} else {
+			$( btn ).addClass( "btn-danger" );
+		  	$( btn ).removeClass( "btn-success" );
+		  	$(btn).text(function(i, text){
+	         	 return text === "Lock Discussion" ? "Open Discussion" : "Lock Discussion";
+	      	});
+		}
+		socket.emit('lock', {
+			did: "<%= doc.id %>"
+		});
+	};
+
 
 	function answer_click(btn) {
 		message2 = document.getElementById(btn.value)
@@ -171,7 +202,7 @@
 	socket.on('question2', function(data){
 	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + urlify(data.message) + ' - ' + data.handle + '</strong><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.qid + '" onclick="removeq_click(this)">remove</button><% }; %>';
 	    document.getElementById('li'+data.qid).innerHTML += '<ul id="answers' + data.qid + '">'
-	    document.getElementById('li'+data.qid).innerHTML += '<div id="answerfield' + data.qid + '">';
+	    document.getElementById('li'+data.qid).innerHTML += '<div id="answerfield' + data.qid + '" class="answerfield">';
 	    document.getElementById('answerfield'+data.qid).innerHTML += '<input id="' + data.qid + '" name="answer" type="text" placeholder="Answer" />';
 	    document.getElementById('answerfield'+data.qid).innerHTML += '<button id="ask2" class="btn btn-primary" value="' + data.qid + '" onclick="answer_click(this)">Answer!</button>';
 	    document.getElementById('questions').innerHTML += '</div></li>';
@@ -179,6 +210,28 @@
 
 	socket.on('answer2', function(data){
 	    document.getElementById('answers' + data.question).innerHTML += '<li id="li' + data.aid + '">' + urlify(data.message) + ' - ' + data.handle + '<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.aid + '"onclick="removea_click(this)">remove</button><% }; %></li>';
+	});
+
+	socket.on('lock', function(data){
+		console.log("lock");
+		var elems = document.getElementsByClassName('answerfield');
+		for (var i=0;i<elems.length;i+=1){
+		  elems[i].style.display = 'none';
+		}
+
+		document.getElementById('questionfield').innerHTML = "<h2>Thread has been locked by moderator</h2>"
+	});
+
+	socket.on('open', function(data){
+		console.log("open");
+		var elems = document.getElementsByClassName('answerfield');
+		for (var i=0;i<elems.length;i+=1){
+		  elems[i].style.display = '';
+		}
+
+		document.getElementById('questionfield').innerHTML = '<h2>Ask a Question</h2>';
+		document.getElementById('questionfield').innerHTML += '<input id="message" type="text" placeholder="Question" />';
+		document.getElementById('questionfield').innerHTML += '<button id="ask" class="btn btn-primary" onclick="question_click(this)">Ask!</button>';
 	});
 
 	socket.on('removeq', function(data){
@@ -213,11 +266,31 @@
 		console.log(data.btn);
 	});
 
+
 	function urlify(text) {
 	    var urlRegex = /(https?:\/\/[^\s]+)/g;
 	    return text.replace(urlRegex, function(url) {
 	        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
 	    })
 	}
+
+	socket.on('adduser', function(data){
+		document.getElementById('userlist').innerHTML += '<li id="li' + data.uid + '"><img src="/' + data.uid + '.jpg" /></li>'
+	});
+
+	socket.on('removeuser', function(data){
+		Element.prototype.remove = function() {
+		    this.parentElement.removeChild(this);
+		}
+		NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+		    for(var i = this.length - 1; i >= 0; i--) {
+		        if(this[i] && this[i].parentElement) {
+		            this[i].parentElement.removeChild(this[i]);
+		        }
+		    }
+		}
+		console.log("HE LEFT LUL" + data.uid);
+		document.getElementById('li'+data.uid).remove();
+	});
 </script>
 </html>

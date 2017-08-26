@@ -5,6 +5,7 @@
 	<title>IMD Q&A</title>
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+	<script src="/socket.io/socket.io.js"></script>
 	<style>
 		body 		{ padding-top:80px; }
 	</style>
@@ -37,4 +38,7 @@
 
 </div>
 </body>
+<script>
+	var socket = io.connect('http://localhost:8080');
+</script>
 </html>

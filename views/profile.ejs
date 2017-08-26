@@ -43,12 +43,23 @@
                     <strong>id</strong>: <%= user.facebook.id %><br>
                     <strong>token</strong>: <%= user.facebook.token %><br>
                     <strong>email</strong>: <%= user.facebook.email %><br>
-                    <strong>name</strong>: <%= user.facebook.name %>
+                    <strong>name</strong>: <%= user.facebook.name %><br>
+                    <strong>avatar</strong>:<br> <img src="<%= user._id %>.jpg" alt="profile_picture" style="width: 100px; height: 100px;"/>
                 </p>
 
             </div>
         </div>
 		<a href="/discussion/create" class="btn btn-primary"><span class="fa fa-envelope"></span> Start Discussion</a>
+		<hr>
+		<form ref='uploadForm' 
+	      id='uploadForm' 
+	      action='http://localhost:8080/upload' 
+	      method='post' 
+	      encType="multipart/form-data">
+	      <label>only .jpg</label>
+	        <input type="file" name="sampleFile" />
+	        <input type='submit' value='Upload!' />
+	    </form> 
 	</div>
 
 </div>

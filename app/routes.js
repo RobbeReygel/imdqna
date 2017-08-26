@@ -3,6 +3,7 @@ var Discussion = require('./models/discussion');
 var mongoose = require('mongoose');
 var geoip = require('geoip-lite');
 
+
 module.exports = function(app, passport){
 
 	app.get('/', function(req, res){
@@ -50,7 +51,7 @@ module.exports = function(app, passport){
 	}));
 
 	app.get('/profile', isLoggedIn, function(req, res){
-		res.render('profile.ejs', { user: req.user });
+		res.render('profile.ejs', { user: req.user});
 	});
 
 	app.get('/auth/facebook', passport.authenticate('facebook', {scope: ['email']}));
@@ -64,6 +65,26 @@ module.exports = function(app, passport){
 		req.logout();
 		res.redirect('/');
 	})
+
+	app.post('/upload', function(req, res) {
+	  if (!req.files)
+	    return res.status(400).send('No files were uploaded.');
+	 
+	  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file 
+	  let sampleFile = req.files.sampleFile;
+	 
+	  // Use the mv() method to place the file somewhere on your server 
+	  sampleFile.mv('./images/'+ req.user._id +'.jpg', function(err) {
+	    if (err)
+	      return res.status(500).send(err);
+	 
+	    res.redirect('/profile');
+
+	    var data = req.user._id + ".jpg"
+
+	    //User.update({ _id: req.user._id },{ "$set": { "facebook.avatar": data } },function (err, doc) {});
+	  });
+	});
 
 	app.get('/discussion/create', isLoggedIn, function(req, res){
 		res.render('creatediscussion.ejs', { user: req.user });
@@ -170,6 +191,7 @@ module.exports = function(app, passport){
 		});
 	});
 */
+/*
 	app.post('/discussion/:id/status', isLoggedIn, function(req,res) {
 		var locked = 
 		{
@@ -193,7 +215,7 @@ module.exports = function(app, passport){
 			}
 		});
 	});
-
+*/
 
 };
 

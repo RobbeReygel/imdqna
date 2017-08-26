@@ -2,7 +2,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 
 
-var User            = require('../app/models/user');
+var User = require('../app/models/user');
 var configAuth = require('./auth');
 
 module.exports = function(passport) {
@@ -30,7 +30,7 @@ module.exports = function(passport) {
 				if(err)
 					return done(err);
 				if(user){
-					return done(null, false, req.flash('signupMessage', 'That email already taken'));
+					return done(null, false, req.flash('signupMessage', 'That username is already taken'));
 				} else {
 					var newUser = new User();
 					newUser.local.username = email;
