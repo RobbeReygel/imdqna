@@ -16,12 +16,12 @@
 <div class="container">
 
 	<div class="jumbotron text-center">
-		<a href="/">Home</a>
+		<a href="/" class="btn btn-default btn-sm">Home</a>
 		<h1>IMD Q&A</h1>
 	    <h2><%= doc.topic %> - <%= person.facebook.name %> <%= person.local.username %></h2>
 	    <ul id="userlist">
 	    <% doc.participants.forEach(function(p) { %>
-	    	<li id="li<%= p %>"><img src="/<%= p %>.jpg" /></li>
+	    		<li id="li<%= p %>"><img src="/img/<%= p %>.jpg" alt="person.facebook.name" /></li>
 	    <% }); %>
 	    </ul>
 	</div>
@@ -115,7 +115,8 @@
 	socket.emit('subscribe', {
 		id: "<%= doc.id %>",
 		nick: "<%= user.facebook.name %><%= user.local.username %>",
-		uid: "<%= user.id %>"
+		uid: "<%= user.id %>",
+		avatar: "<%= user.facebook.avatar %>"
 	});
 
 	window.onbeforeunload = function(){
@@ -275,7 +276,7 @@
 	}
 
 	socket.on('adduser', function(data){
-		document.getElementById('userlist').innerHTML += '<li id="li' + data.uid + '"><img src="/' + data.uid + '.jpg" /></li>'
+		document.getElementById('userlist').innerHTML += '<li id="li' + data.uid + '"><img src="/img/' + data.uid + '.jpg" alt="' + data.nick + '"/></li>'
 	});
 
 	socket.on('removeuser', function(data){
@@ -289,7 +290,6 @@
 		        }
 		    }
 		}
-		console.log("HE LEFT LUL" + data.uid);
 		document.getElementById('li'+data.uid).remove();
 	});
 </script>

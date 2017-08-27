@@ -2,66 +2,48 @@
 <!doctype html>
 <html>
 <head>
-	<title>IMD Q&A</title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<meta charset="utf-8">
+	<title>IMD Q&A - Profile</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-	<style>
-		body 		{ padding-top:80px; word-wrap:break-word; }
-	</style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css">
+	<link rel="stylesheet" href="/css/main.css">
+	<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 <div class="container">
 
-	<div class="page-header text-center">
-		<h1><span class="fa fa-user"></span> Your Profile</h1>
-		<a href="/" class="btn btn-default btn-sm">Home</a>
-		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
-	</div>
+	<div class="header">
+			<nav class="menu">
+				<ul class="menu__ul">
+					<li class="menu__item--first-child"><a href="/" class="menu__link menu__link--logo">IMD Q&A</a></li>
 
-	<div class="row">
-
-		<!-- LOCAL INFORMATION -->
-		<div class="col-sm-6">
-			<div class="well">
-				<h3><span class="fa fa-user"></span> Local</h3>
-
-					<p>
-						<strong>id</strong>: <%= user._id %><br>
-						<strong>username</strong>: <%= user.local.username %><br>
-						<strong>password</strong>: <%= user.local.password %>
-					</p>
-
-			</div>
+					<li class="menu__item"><a href="/discussion/create" class="menu__link"><span class="fa fa-envelope"></span> Start Discussion</a></li>
+					<li class="menu__item"><a href="/profile" class="menu__link"><span class="fa fa-user"></span> Profile</a></li>
+					<li class="menu__item"><a href="/logout" class="menu__link"><span class="fa fa-sign-out"></span> Logout</a></li>
+				</ul>	
+			</nav>
 		</div>
 
-		 <!-- FACEBOOK INFORMATION -->
-        <div class="col-sm-6">
-            <div class="well">
-                <h3 class="text-primary"><span class="fa fa-facebook"></span> Facebook</h3>
+		<div class="banner">
+			<h1 class="banner__title">IMD Q&A</h1>
+			<h3 class="banner__subtitle">Your Profile</h3>
+		</div>
 
-                <p>
-                    <strong>id</strong>: <%= user.facebook.id %><br>
-                    <strong>token</strong>: <%= user.facebook.token %><br>
-                    <strong>email</strong>: <%= user.facebook.email %><br>
-                    <strong>name</strong>: <%= user.facebook.name %><br>
-                    <strong>avatar</strong>:<br> <img src="<%= user._id %>.jpg" alt="profile_picture" style="width: 100px; height: 100px;"/>
-                </p>
-
-            </div>
-        </div>
-		<a href="/discussion/create" class="btn btn-primary"><span class="fa fa-envelope"></span> Start Discussion</a>
-		<hr>
-		<form ref='uploadForm' 
-	      id='uploadForm' 
-	      action='http://localhost:8080/upload' 
-	      method='post' 
-	      encType="multipart/form-data">
-	      <label>only .jpg</label>
-	        <input type="file" name="sampleFile" />
-	        <input type='submit' value='Upload!' />
+		<div class="form">		
+			<p class="form__title"><span class="fa fa-user"></span> <%= user.local.username %><%= user.facebook.name %><br></p>
+			<p class="form__title"><img src="/img/<%= user._id %>.jpg" alt="profile_picture" class="feed__image--large"/></p>
+		
+		<form ref='uploadForm' id='uploadForm' action='http://localhost:8080/upload' method='post' encType="multipart/form-data" >
+	        <label class="form__title">Update your Avatar! (.jpg/.png)</label><br><br>
+	        <input type="file" name="sampleFile" class="form__button--upload"/>
+	        <input type='submit' value='Upload!' class="form__button--submit"/>
 	    </form> 
 	</div>
 
 </div>
 </body>
+<script>
+	var socket = io.connect('http://localhost:8080');
+</script>
 </html>

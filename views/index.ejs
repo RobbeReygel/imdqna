@@ -2,40 +2,57 @@
 <!doctype html>
 <html>
 <head>
-	<title>IMD Q&A</title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+	<meta charset="utf-8">
+	<title>IMD Q&A - Home</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css">
+	<link rel="stylesheet" href="/css/main.css">
 	<script src="/socket.io/socket.io.js"></script>
-	<style>
-		body 		{ padding-top:80px; }
-	</style>
 </head>
 <body>
 <div class="container">
+		<div class="header">
+			<nav class="menu">
+				<ul class="menu__ul">
+					<li class="menu__item--first-child"><a href="/" class="menu__link menu__link--logo">IMD Q&A</a></li>
 
-	<div class="jumbotron text-center">
-		<h1><span class="fa fa-lock"></span> IMD Q&A</h1>
+					<li class="menu__item"><a href="/discussion/create" class="menu__link"><span class="fa fa-envelope"></span> Start Discussion</a></li>
+					<li class="menu__item"><a href="/profile" class="menu__link"><span class="fa fa-user"></span> Profile</a></li>
+					<li class="menu__item"><a href="/logout" class="menu__link"><span class="fa fa-sign-out"></span> Logout</a></li>
+				</ul>	
+			</nav>
+		</div>
+		<div class="banner">
+			<h1 class="banner__title">IMD Q&A</h1>
+			<h3 class="banner__subtitle">Create Discussion</h3>
+		</div>
 
-		<p>Login or Register with:</p>
-		<a href="/login" class="btn btn-default"><span class="fa fa-user"></span> Login</a>
-		<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Signup</a>
-		<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
-		<a href="/discussion/create" class="btn btn-primary"><span class="fa fa-envelope"></span> Start Discussion</a>
-		<p>location: <%= geo.city %></p>
-		<ul>
+		
+		<div class="feed">
+		<ul class="feed__list">
 		    <% data.forEach(function(d) { %>
-		    	<% if (d.city == geo.city && d.status == "open") { %>
-		        	<a href=discussion/<%= d._id %>><li><%= d.topic %></li></a>
-		        <% }else if (d.city == geo.city && d.status == "locked") {%>
-		        	<a href=discussion/<%= d._id %>><li><%= d.topic %> (locked)</li></a>
-		        <% } %>
+		    	<% u.forEach(function(u) { %>
+		    		<% if(d.postedBy == u.id) { %>
+			    	<% if (d.city == geo.city && d.status == "open") { %>
+			        	<a href="discussion/<%= d._id %>" class="feed__link">
+			        	<span class="fa fa-comments-o feed__icon"></span><li class="feed__item"> <%= d.topic %></li>
+			        	<li class="feed__poster"><img src="/img/<%= u.id %>.jpg" alt="profile_picture" class="feed__image"></li>
+			        	<li class="feed__poster"><%= u.facebook.name %> <%= u.local.username %></li>
+			        	</a>
+			        <% }else if (d.city == geo.city && d.status == "locked") {%>
+			        	<a href="discussion/<%= d._id %>" class="feed__link--locked">
+			        	<span class="fa fa-lock feed__icon"></span><li class="feed__item"> <%= d.topic %></li>
+			        	<li class="feed__poster"><img src="/img/<%= u.id %>.jpg" alt="profile_picture" class="feed__image"></li>
+			        	<li class="feed__poster"><%= u.facebook.name %> <%= u.local.username %></li>
+			        	</a>
+			        <% } %>
+			        <% }; %>
+			    <% }); %>
 		    <% }); %>
 		</ul>
-		
+
 	</div>
-
-	
-
 </div>
 </body>
 <script>

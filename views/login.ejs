@@ -16,10 +16,7 @@
 
 	<h1><span class="fa fa-sign-in"></span> Login</h1>
 
-	<!-- show any messages that come back with authentication -->
-	<% if (message.length > 0) { %>
-		<div class="alert alert-danger"><%= message %></div>
-	<% } %>
+
 
 	<!-- LOGIN FORM -->
 	<form action="/login" method="post">
@@ -32,14 +29,14 @@
 			<input type="password" class="form-control" name="password">
 		</div>
 
-		<button type="submit" class="btn btn-warning btn-lg">Login</button>
+		<button type="submit" class="btn btn-warning">Login</button>
+		<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
 	</form>
 
 	<hr>
 
 	<p>Need an account? <a href="/signup">Signup</a></p>
-	<p>Or go <a href="/">home</a>.</p>
-	<a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
+	
 
 </div>
 
