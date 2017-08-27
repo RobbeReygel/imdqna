@@ -2,61 +2,78 @@
 <!doctype html>
 <html>
 <head>
-	<title>IMD Q&A</title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
-	<style>
-		body 		{ padding-top:80px; }
-	</style>
+	<meta charset="utf-8">
+	<title>IMD Q&A - Discussion</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css">
+	<link rel="stylesheet" href="/css/main.css">
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 	
 </head>
 <body>
 <div class="container">
+	<div class="header">
+			<nav class="menu">
+				<ul class="menu__ul">
+					<li class="menu__item--first-child"><a href="/" class="menu__link menu__link--logo">IMD Q&A</a></li>
 
-	<div class="jumbotron text-center">
-		<a href="/" class="btn btn-default btn-sm">Home</a>
-		<h1>IMD Q&A</h1>
-	    <h2><%= doc.topic %> - <%= person.facebook.name %> <%= person.local.username %></h2>
-	    <ul id="userlist">
-	    <% doc.participants.forEach(function(p) { %>
-	    		<li id="li<%= p %>"><img src="/img/<%= p %>.jpg" alt="person.facebook.name" /></li>
-	    <% }); %>
-	    </ul>
-	</div>
+					<li class="menu__item"><a href="/discussion/create" class="menu__link"><span class="fa fa-envelope"></span> Start Discussion</a></li>
+					<li class="menu__item"><a href="/profile" class="menu__link"><span class="fa fa-user"></span> Profile</a></li>
+					<li class="menu__item"><a href="/logout" class="menu__link"><span class="fa fa-sign-out"></span> Logout</a></li>
+				</ul>	
+			</nav>
+		</div>
+		<div class="banner">
+			<h1 class="banner__title">IMD Q&A</h1>
+			<h3 class="banner__subtitle"><%= doc.topic %> - <%= person.facebook.name %> <%= person.local.username %></h3>
 
-	<div class="jumbotron text-center">
-		<% if(doc.status == "open") {%>
-		<div id="questionfield">
-            <h2>Ask a Question</h2>
-            <input id="message" type="text" placeholder="Question" />
-            <button id="ask" class="btn btn-primary" onclick="question_click(this)">Ask!</button>
-        </div>
-		<% }; %>
-		<% if(doc.postedBy.toString() == userid.toString()){ %>
-			<% if (doc.status == "open") { %>
-				<button type="button" id="lock" class="btn btn-danger" onclick="lock_click(this)">Lock Discussion</button>
-			<% }else{ %>
-				<button type="button" id="lock" class="btn btn-success" onclick="lock_click(this)">Open Discussion</button>
-			<% }; %>
-		<% } %>	
+			<ul id="userlist" class="banner__list">
+		    <% doc.participants.forEach(function(p) { %>
+		    		<li id="li<%= p %>" class="banner__item"><img src="/img/<%= p %>.jpg" alt="person.facebook.name" class="banner__image"/></li>
+		    <% }); %>
+		    </ul>
 		</div>
 
-		<div class="jumbotron text-center">
-		<ul id="questions">
+		    
+
+	<div class="form form--bgcolor">
+		<% if(doc.status == "open") {%>
+		<div id="questionfield">
+            <input id="message" type="text" placeholder="Ask a Question!" class="form__field" />
+            <button id="ask" class="form__button--question" onclick="question_click(this)"><span class="fa fa-check"></span></button>
+        </div>
+		<% }else{ %>
+			<br><h3 class="form__title">Thread has been locked by moderator</h3>
+		<% } %>
+		<% if(doc.postedBy.toString() == userid.toString()){ %>
+			<% if (doc.status == "open") { %>
+				<button type="button" id="lock" class="form__button--lock" onclick="lock_click(this)">Lock Discussion</button>
+			<% }else{ %>
+				<div id="questionfield">
+				<br><h3 class="form__title">Thread has been locked by moderator</h3>
+				<button type="button" id="lock" class="form__button--unlock" onclick="lock_click(this)">Open Discussion</button>
+				</div>
+			<% }; %>
+		<% } %>	
+	</div>
+
+		<div class="">
+		<ul id="questions" class="feed__list">
 		    <% doc.comments.forEach(function(d) { %>
 		    <% u.forEach(function(u) { %>
 		    	<% if(d.postedBy == u.id) { %>
-		        	<li id="li<%= d.id %>">
+		        	<li id="li<%= d.id %>" class="feed__question">
 		        	<script>
 			        	function urlify(text) {
 						    var urlRegex = /(https?:\/\/[^\s]+)/g;
 						    return text.replace(urlRegex, function(url) {
-						        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
+						        return '<br><a href="' + url + '"><img src="' + url + '" alt="link" class="feed__urlimage"/></a>';
 						    })
 						}
-			        	document.getElementById('li<%= d.id %>').innerHTML += '<b>'+ urlify("<%= d.text %>") +' - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= d._id %>" onclick="removeq_click(this)">remove</button><% }; %></b>'
+			        	document.getElementById('li<%= d.id %>').innerHTML += '<h1 class="feed__question--title"><b><img src="/img/<%= u.id %>.jpg" alt="image" class="banner__image" style="vertical-align:middle"> <span> '+ urlify("<%= d.text %>") +' <% if(doc.postedBy.toString() == userid.toString()){ %> <button id="remove" class="form__button--lock" value="<%= d._id %>" onclick="removeq_click(this)"><span class="fa fa-trash-o"></span></button></span><% }; %></b></h1>'
+			        	document.getElementById('li<%= d.id %>').innerHTML += '<p class="feed__question--subtitle"><%= u.facebook.name %><%= u.local.username %></p>'
 		        	</script>
 
 		        	
@@ -68,15 +85,15 @@
 
 		        	<% if(a.question == d.id) { %>
 		        		<% if(a.postedBy == u.id) { %>
-		        			<li id="li<%= a.id %>">
+		        			<li id="li<%= a.id %>" class='feed__answer'>
 		        			<script>
 					        	function urlify(text) {
 								    var urlRegex = /(https?:\/\/[^\s]+)/g;
 								    return text.replace(urlRegex, function(url) {
-								        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
+								        return '<br><a href="' + url + '"><img src="' + url + '" alt="link" class="feed__urlimage"/></a>';
 								    })
 								}
-					        	document.getElementById('li<%= a.id %>').innerHTML += ''+ urlify("<%= a.text %>") +' - <%= u.facebook.name %> <%= u.local.username %><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="<%= a._id %>" onclick="removea_click(this)">remove</button><% }; %></li>'
+					        	document.getElementById('li<%= a.id %>').innerHTML += '<img src="/img/<%= u.id %>.jpg" alt="image" class="banner__image" style="vertical-align:middle"> <span><strong><%= u.facebook.name %> <%= u.local.username %>:</strong></span>'+ urlify(" <%= a.text %> &nbsp ") +'<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="form__button--lock" value="<%= a._id %>" onclick="removea_click(this)"><span class="fa fa-trash-o"> </span></button><% }; %></li>'
 				        	</script>
 
 		        			
@@ -89,8 +106,8 @@
 		        
 		        <% if(doc.status == "open") {%>
 		        <div id="answerfield<%= d.id %>" class="answerfield">
-		            <input id="<%= d._id %>" name="answer" type="text" placeholder="Answer" />
-		            <button id="ask2" class="btn btn-primary" value="<%= d._id %>" onclick="answer_click(this)">Answer!</button>
+		            <input id="<%= d._id %>" name="answer" type="text" class="form__field--left" placeholder="Answer" />
+		            <button id="ask2" value="<%= d._id %>" class="form__button--question" onclick="answer_click(this)"><span class="fa fa-check"></span></button>
 		        </div>
 				<% }; %>
 				</li>
@@ -151,15 +168,15 @@
 	};
 
 	function lock_click(btn) {
-		if ($( btn ).hasClass( "btn-danger" )) {
-		  $( btn ).addClass( "btn-success" );
-		  $( btn ).removeClass( "btn-danger" );
+		if ($( btn ).hasClass( "form__button--lock" )) {
+		  $( btn ).addClass( "form__button--unlock" );
+		  $( btn ).removeClass( "form__button--lock" );
 		  $(btn).text(function(i, text){
-	          return text === "Lock Discussion" ? "Open Discussion" : "Lock Discussion";
+	          return text === "Lock Discussion" ? "Open Discussion" : " Lock Discussion";
 	      });
 		} else {
-			$( btn ).addClass( "btn-danger" );
-		  	$( btn ).removeClass( "btn-success" );
+			$( btn ).addClass( "form__button--lock" );
+		  	$( btn ).removeClass( "form__button--unlock" );
 		  	$(btn).text(function(i, text){
 	         	 return text === "Lock Discussion" ? "Open Discussion" : "Lock Discussion";
 	      	});
@@ -201,38 +218,38 @@
 
 	// Listen for events
 	socket.on('question2', function(data){
-	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '"><strong>' + urlify(data.message) + ' - ' + data.handle + '</strong><% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.qid + '" onclick="removeq_click(this)">remove</button><% }; %>';
+	    document.getElementById('questions').innerHTML += '<li id="li'+ data.qid + '" class="feed__question"><h1 class="feed__question--title"><b><img src="/img/'+data.postedBy+'.jpg" alt="image" class="banner__image" style="vertical-align:middle"> <span> ' + urlify(data.message) + ' <% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="form__button--lock" value="'+ data.qid + '" onclick="removeq_click(this)"><span class="fa fa-trash-o"></span></button><% }; %> </b></h1></span';
+
+	    document.getElementById('li'+data.qid).innerHTML += '<p class="feed__question--subtitle">'+data.handle+'</p>'
+
 	    document.getElementById('li'+data.qid).innerHTML += '<ul id="answers' + data.qid + '">'
 	    document.getElementById('li'+data.qid).innerHTML += '<div id="answerfield' + data.qid + '" class="answerfield">';
-	    document.getElementById('answerfield'+data.qid).innerHTML += '<input id="' + data.qid + '" name="answer" type="text" placeholder="Answer" />';
-	    document.getElementById('answerfield'+data.qid).innerHTML += '<button id="ask2" class="btn btn-primary" value="' + data.qid + '" onclick="answer_click(this)">Answer!</button>';
+	    document.getElementById('answerfield'+data.qid).innerHTML += '<input id="' + data.qid + '" name="answer" type="text" class="form__field--left" placeholder="Answer" />';
+	    document.getElementById('answerfield'+data.qid).innerHTML += '<button id="ask2" class="form__button--question" value="' + data.qid + '" onclick="answer_click(this)"><span class="fa fa-check"></span></button>';
 	    document.getElementById('questions').innerHTML += '</div></li>';
 	});
 
 	socket.on('answer2', function(data){
-	    document.getElementById('answers' + data.question).innerHTML += '<li id="li' + data.aid + '">' + urlify(data.message) + ' - ' + data.handle + '<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="btn btn-danger" value="'+ data.aid + '"onclick="removea_click(this)">remove</button><% }; %></li>';
+	    document.getElementById('answers' + data.question).innerHTML += '<li id="li' + data.aid + '" class="feed__answer">' + '<img src="/img/'+data.postedBy+'.jpg" alt="image" class="banner__image" style="vertical-align:middle"> <span><strong>'+data.handle+' : </strong>' +urlify(data.message) +  ' <% if(doc.postedBy.toString() == userid.toString()){ %>&nbsp&nbsp<button id="remove" class="form__button--lock" value="'+ data.aid + '"onclick="removea_click(this)"> <span class="fa fa-trash-o"> </span></button><% }; %></li></span>';
 	});
 
 	socket.on('lock', function(data){
-		console.log("lock");
 		var elems = document.getElementsByClassName('answerfield');
 		for (var i=0;i<elems.length;i+=1){
 		  elems[i].style.display = 'none';
 		}
 
-		document.getElementById('questionfield').innerHTML = "<h2>Thread has been locked by moderator</h2>"
+		document.getElementById('questionfield').innerHTML = "<br><h2 class='form__title'>Thread has been locked by moderator</h2>"
 	});
 
 	socket.on('open', function(data){
-		console.log("open");
 		var elems = document.getElementsByClassName('answerfield');
 		for (var i=0;i<elems.length;i+=1){
 		  elems[i].style.display = '';
 		}
-
-		document.getElementById('questionfield').innerHTML = '<h2>Ask a Question</h2>';
-		document.getElementById('questionfield').innerHTML += '<input id="message" type="text" placeholder="Question" />';
-		document.getElementById('questionfield').innerHTML += '<button id="ask" class="btn btn-primary" onclick="question_click(this)">Ask!</button>';
+		document.getElementById('questionfield').innerHTML = '<h3> </h3>';
+		document.getElementById('questionfield').innerHTML += '<input id="message" type="text" placeholder="Ask a Question!" class="form__field" />';
+		document.getElementById('questionfield').innerHTML += '<button id="ask" class="form__button--question" onclick="question_click(this)"><span class="fa fa-check"></span></button>';
 	});
 
 	socket.on('removeq', function(data){
@@ -271,12 +288,12 @@
 	function urlify(text) {
 	    var urlRegex = /(https?:\/\/[^\s]+)/g;
 	    return text.replace(urlRegex, function(url) {
-	        return '<a href="' + url + '"><img src="' + url + '" alt="link"/></a>';
+	        return '<br><a href="' + url + '"><img src="' + url + '" alt="link" class="feed__urlimage"/></a>';
 	    })
 	}
 
 	socket.on('adduser', function(data){
-		document.getElementById('userlist').innerHTML += '<li id="li' + data.uid + '"><img src="/img/' + data.uid + '.jpg" alt="' + data.nick + '"/></li>'
+		document.getElementById('userlist').innerHTML += '<li id="li' + data.uid + '" class="banner__item"><img src="/img/' + data.uid + '.jpg" alt="' + data.nick + '" class="banner__image"/></li>'
 	});
 
 	socket.on('removeuser', function(data){
