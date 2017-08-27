@@ -115,9 +115,7 @@ module.exports = function(app, passport){
 	})
 
 	app.get('/discussion', function(req,res) {
-        Discussion.find(function(err,docs) {
-          res.render('discussion.ejs', { docs : docs});
-        });
+          res.redirect('/');
       });
 
 	app.get('/discussion/:id', isLoggedIn, function(req,res) {

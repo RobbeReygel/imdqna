@@ -80,12 +80,13 @@
 
 		        	<ul id="answers<%= d.id %>">
 		        <% } %>
+		        <% }) %>
 		        
 		        <% doc.answers.forEach(function(a) { %>
-
+		        	<% u.forEach(function(u) { %>
 		        	<% if(a.question == d.id) { %>
 		        		<% if(a.postedBy == u.id) { %>
-		        			<li id="li<%= a.id %>" class='feed__answer'>
+		        			
 		        			<script>
 					        	function urlify(text) {
 								    var urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -93,15 +94,17 @@
 								        return '<br><a href="' + url + '"><img src="' + url + '" alt="link" class="feed__urlimage"/></a>';
 								    })
 								}
+								document.getElementById('answers<%= a.question %>').innerHTML += '<li id="li<%= a.id %>" class="feed__answer">'
 					        	document.getElementById('li<%= a.id %>').innerHTML += '<img src="/img/<%= u.id %>.jpg" alt="image" class="banner__image" style="vertical-align:middle"> <span><strong><%= u.facebook.name %> <%= u.local.username %>:</strong></span>'+ urlify(" <%= a.text %> &nbsp ") +'<% if(doc.postedBy.toString() == userid.toString()){ %><button id="remove" class="form__button--lock" value="<%= a._id %>" onclick="removea_click(this)"><span class="fa fa-trash-o"> </span></button><% }; %></li>'
 				        	</script>
 
 		        			
 		        		<% } %>
 		        	<% } %>
+		        	<% }); %>
 		        <% }); %>
 		        
-		        <% }); %>
+		        
 		        </ul>
 		        
 		        <% if(doc.status == "open") {%>
