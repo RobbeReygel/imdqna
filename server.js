@@ -40,7 +40,8 @@ io.on('connection', function(socket){
 		io.sockets.in(room.id).emit('adduser', {
     		id: room.id,
     		nick: room.nick,
-    		uid: room.uid
+    		uid: room.uid,
+    		avatar: room.avatar
 		});
 	});
 
@@ -55,7 +56,8 @@ io.on('connection', function(socket){
     	io.sockets.in(room.id).emit('removeuser', {
     		id: room.id,
     		nick: room.nick,
-    		uid: room.uid
+    		uid: room.uid,
+    		avatar: room.avatar
 		});
 	});
 
@@ -176,7 +178,7 @@ require('./config/passport')(passport);
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(session({secret: 'anystringoftext',
+app.use(session({secret: 'secret123',
 				 saveUninitialized: true,
 				 resave: true}));
 
@@ -184,17 +186,11 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 app.use(fileUpload());
-app.use(express.static(__dirname + '/images'));
+app.use(express.static(__dirname + '/public'));
 
 app.set('view engine', 'ejs');
 
 
-// app.use('/', function(req, res){
-// 	res.send('Our First Express program!');
-// 	console.log(req.cookies);
-// 	console.log('================');
-// 	console.log(req.session);
-// });
 
 require('./app/routes.js')(app, passport);
 

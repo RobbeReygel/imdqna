@@ -6,26 +6,19 @@ var geoip = require('geoip-lite');
 
 module.exports = function(app, passport){
 
-	app.get('/', function(req, res){
-/*
+	app.get('/',isLoggedIn, function(req, res){
 		Discussion.find({topic:{ $ne: "" }}, function(err, data){
-			Discussion.count({topic:{ $ne: "" }}, function (err, c) {
-				res.render('index.ejs', { data : data, count : c });
+			User.find({ '_id': req.user._id}, 'facebook.avatar local.avatar', function(err,person) {
+				User.find({},function(err,u) {
+					var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+					if (ip !== "::1") {
+						var geo = geoip.lookup(ip);
+					} else {
+						var geo = geoip.lookup("207.97.227.239");
+					}
+					res.render('index.ejs', { data : data, geo : geo, u : u, person : person});
+				});
 			});
-    	});
-
-		Discussion.find({ _id: d.postedBy },{ topic: 1}, function(err, data) {
-			res.render('index.ejs', { data : data});
-		});
-*/
-		Discussion.find({topic:{ $ne: "" }}, function(err, data){
-			var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-			if (ip !== "::1") {
-				var geo = geoip.lookup(ip);
-			} else {
-				var geo = geoip.lookup("207.97.227.239");
-			}
-			res.render('index.ejs', { data : data, geo : geo});
     	});
 
 	});
@@ -34,7 +27,7 @@ module.exports = function(app, passport){
 		res.render('login.ejs', { message: req.flash('loginMessage') });
 	});
 	app.post('/login', passport.authenticate('local-login', {
-		successRedirect: '/profile',
+		successRedirect: '/',
 		failureRedirect: '/login',
 		failureFlash: true
 	}));
@@ -51,13 +44,15 @@ module.exports = function(app, passport){
 	}));
 
 	app.get('/profile', isLoggedIn, function(req, res){
-		res.render('profile.ejs', { user: req.user});
+		User.findOne({ '_id': req.user._id}, 'facebook.avatar local.avatar', function(err,person) {
+			res.render('profile.ejs', { user: req.user, person : person});
+		});
 	});
 
 	app.get('/auth/facebook', passport.authenticate('facebook', {scope: ['email']}));
 
 	app.get('/auth/facebook/callback', 
-	  passport.authenticate('facebook', { successRedirect: '/profile',
+	  passport.authenticate('facebook', { successRedirect: '/',
 	                                      failureRedirect: '/' }));
 
 
@@ -74,15 +69,16 @@ module.exports = function(app, passport){
 	  let sampleFile = req.files.sampleFile;
 	 
 	  // Use the mv() method to place the file somewhere on your server 
-	  sampleFile.mv('./images/'+ req.user._id +'.jpg', function(err) {
+	  sampleFile.mv('./public/img/'+ req.user._id +'.jpg', function(err) {
 	    if (err)
 	      return res.status(500).send(err);
 	 
 	    res.redirect('/profile');
 
-	    var data = req.user._id + ".jpg"
+	    var data = true;
 
-	    //User.update({ _id: req.user._id },{ "$set": { "facebook.avatar": data } },function (err, doc) {});
+	    User.update({ _id: req.user._id },{ "$set": { "facebook.avatar": data } },function (err, doc) {});
+	    User.update({ _id: req.user._id },{ "$set": { "local.avatar": data } },function (err, doc) {});
 	  });
 	});
 

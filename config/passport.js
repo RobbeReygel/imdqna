@@ -1,5 +1,6 @@
 var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
+var fs = require('fs');
 
 
 var User = require('../app/models/user');
@@ -41,6 +42,7 @@ module.exports = function(passport) {
 							throw err;
 						return done(null, newUser);
 					})
+					fs.createReadStream('public/img/default.jpg').pipe(fs.createWriteStream('public/img/'+newUser._id+'.jpg'));
 				}
 			})
 
@@ -95,7 +97,7 @@ module.exports = function(passport) {
 	    						throw err;
 	    					return done(null, newUser);
 	    				})
-	    				console.log(profile);
+	    				fs.createReadStream('public/img/default.jpg').pipe(fs.createWriteStream('public/img/'+newUser._id+'.jpg'));
 	    			}
 	    		});
 	    	});

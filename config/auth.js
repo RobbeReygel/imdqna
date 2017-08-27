@@ -5,10 +5,4 @@ module.exports = {
 		'callbackURL': 'http://localhost:8080/auth/facebook/callback',
 		'profileFields'   : ['id', 'name', 'email']
 	},
-
-	'googleAuth' : {
-		'clientID': 'enter client id here',
-		'clientSecret': 'enter client secret here',
-		'callbackURL': 'enter callback here'
-	}
 }

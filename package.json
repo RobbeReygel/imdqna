@@ -1,7 +1,7 @@
 {
-  "name": "OAuthProject",
-  "version": "0.0.0",
-  "description": "",
+  "name": "imdqna",
+  "version": "1.0.0",
+  "description": "Question and answer app for IMD",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,11 +17,13 @@
     "express": "~4.12.3",
     "express-fileupload": "^0.1.4",
     "express-session": "latest",
+    "fs": "0.0.1-security",
     "geoip-lite": "^1.2.1",
     "http": "0.0.0",
     "mongoose": "latest",
     "mongoose-auto-increment": "^5.0.1",
     "morgan": "~1.5.2",
+    "node-sass": "^4.5.3",
     "passport": "~0.2.1",
     "passport-facebook": "~2.0.0",
     "passport-local": "~1.0.0",
