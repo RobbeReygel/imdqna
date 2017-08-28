@@ -93,7 +93,6 @@ module.exports = function(app, passport){
 		_ = require("underscore");
 		var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
 		//var ip = "81.164.109.161";
-		var geo = 
 		if (ip !== "::1" && ip !== "" && ip !== null) {
 			var geo = geoip.lookup(ip);
 		} else {
