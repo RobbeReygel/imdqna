@@ -14,7 +14,7 @@ module.exports = function(app, passport){
 					if (ip !== "::1" && ip !== "" && ip !== null) {
 						var geo = geoip.lookup(ip);
 					} else {
-						var geo = geoip.lookup("207.97.227.239");
+						var geo = geoip.lookup("81.82.233.247");
 					}
 					res.render('index.ejs', { data : data, geo : geo, u : u, person : person});
 				});
@@ -96,7 +96,7 @@ module.exports = function(app, passport){
 		if (ip !== "::1" && ip !== "" && ip !== null) {
 			var geo = geoip.lookup(ip);
 		} else {
-			var geo = geoip.lookup("207.97.227.239");
+			var geo = geoip.lookup("81.82.233.247");
 		}
 		var myData = new Discussion(_.extend({
 			city: geo.city,
