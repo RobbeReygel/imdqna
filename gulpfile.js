@@ -3,7 +3,12 @@ var sass = require('gulp-sass');
 var imageop = require('gulp-image-optimization');
 const imagemin = require('gulp-imagemin');
 
-gulp.task('default', ['sass','imagemin']);
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
+var minifyCSS = require('gulp-minify-css');
+var rename = require('gulp-rename');
+
+gulp.task('default', ['sass','imagemin', 'css', 'scripts']);
 
 gulp.task('sass', function () {
   return gulp.src('./sass/*.scss')
@@ -29,5 +34,27 @@ gulp.task('imagemin', () =>
         .pipe(gulp.dest('./public/img'))
 );
 
+var jsFiles = './public/js/*.js',
+    jsDest = './public/js',
+    cssFiles = './public/css/*.css;'
+    cssDest = './public/css;'
+
+gulp.task('scripts', function() {
+    return gulp.src(jsFiles)
+        .pipe(concat('scripts.js'))
+        .pipe(gulp.dest(jsDest))
+        .pipe(rename('scripts.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(jsDest));
+});
+
+gulp.task('css', function(){
+    gulp.src(cssFiles)
+    	.pipe(concat('style.css'))
+    	.pipe(gulp.dest(cssDest))
+    	.pipe(rename('style.min.css'))
+    	.pipe(minifyCSS())
+    	.pipe(gulp.dest(cssDest))
+});
 
 

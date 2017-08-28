@@ -20,6 +20,8 @@
     "fs": "0.0.1-security",
     "geoip-lite": "^1.2.1",
     "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-minify-css": "^1.2.4",
     "http": "0.0.0",
     "mongoose": "^4.11.8",
     "mongoose-auto-increment": "^5.0.1",
@@ -33,8 +35,11 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "gulp-concat": "^2.6.1",
     "gulp-image-optimization": "^0.1.3",
     "gulp-imagemin": "^3.3.0",
-    "gulp-sass": "^3.1.0"
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^3.0.0"
   }
 }
