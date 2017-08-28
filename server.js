@@ -20,19 +20,17 @@ var Discussion = require('./app/models/discussion');
 
 io.on('connection', function(socket){
 		connectCounter++; 
-		console.log(socket.id + ' connected');
-		console.log("Total clients connected: " + connectCounter)
+		console.log('\x1b[37m[\x1b[32mConnected\x1b[37m] \x1b[0m' + socket.id + ' (\x1b[32m'+connectCounter+'\x1b[0m)');
 	
 	socket.on('disconnect', function(){
 		connectCounter--; 
-	    console.log(socket.id + ' disconnected');
-	    console.log("Total clients connected: " + connectCounter);
+	    console.log('\x1b[37m[\x1b[31mDisconnected\x1b[37m] \x1b[0m' + socket.id + ' (\x1b[31m'+connectCounter+'\x1b[0m)');
 	});
 
 	socket.on('subscribe', function(room) {
 		socket.nickname = room.nick;
     	socket.join(room.id);
-    	console.log(socket.nickname + ' joined room', room.id);
+    	console.log('\x1b[37m[\x1b[32mRoom\x1b[37m] \x1b[0m' + socket.nickname + ' (\x1b[32m' +room.id+'\x1b[0m)');
     	Discussion.findOneAndUpdate({_id: room.id}, {$push: {participants: room.uid}},function (err, doc) {
 
     	});
@@ -48,7 +46,7 @@ io.on('connection', function(socket){
 	socket.on('unsubscribe', function(room) {
 		socket.nickname = room.nick;
     	socket.leave(room.id);
-    	console.log(socket.nickname + ' left room', room.id);
+    	console.log('\x1b[37m[\x1b[31mRoom\x1b[37m] \x1b[0m' + socket.nickname + ' (\x1b[31m' +room.id+'\x1b[0m)');
     	Discussion.findOneAndUpdate({_id: room.id}, {$pull: {participants: room.uid}},function (err, doc) {
     		
     	});
@@ -198,7 +196,7 @@ require('./app/routes.js')(app, passport);
 //console.log('Server running on port: ' + port);
 
 http.listen(port, function(){
-  console.log('Server running on port: ' + port);
+  console.log('\x1b[37m[\x1b[32m!\x1b[37m] Server running on port: \x1b[32m' + port + '\x1b[0m');
 });
 
 
